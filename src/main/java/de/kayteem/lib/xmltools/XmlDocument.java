@@ -27,4 +27,7 @@ public interface XmlDocument {
 
     Element getElementWith(String attrName, String attrValue, List<Element> elements);
 
+    String getAttributeValue(String attrName, Element element);
+    String getContent(Element element);
+
 }

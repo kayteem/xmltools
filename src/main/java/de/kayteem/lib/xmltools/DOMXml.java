@@ -136,4 +136,13 @@ public class DOMXml implements XmlDocument {
         return null;
     }
 
+
+    public String getAttributeValue(String attrName, Element element) {
+        return element.getAttribute(attrName);
+    }
+
+    public String getContent(Element element) {
+        return element.getChildNodes().item(0).getNodeValue();
+    }
+
 }
