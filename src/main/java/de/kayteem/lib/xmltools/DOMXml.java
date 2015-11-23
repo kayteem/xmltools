@@ -33,7 +33,7 @@ public class DOMXml implements XmlDocument {
 
 
     // IMPLEMENTATION (XmlDocument)
-    public void parse(File file) {
+    public void parse(File file) throws ParserConfigurationException, IOException, SAXException {
 
         // [1] - If file does not exist -> throw exception.
         if (!file.exists()) {
@@ -43,29 +43,30 @@ public class DOMXml implements XmlDocument {
         // [2] - Create a DOM builder factory.
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
+        // [3] - Create a DOM builder.
+        DocumentBuilder domBuilder = factory.newDocumentBuilder();
 
-        try {
-            // [3] - Create a DOM builder.
-            DocumentBuilder domBuilder = factory.newDocumentBuilder();
-
-            // [4] - Parse to get the DOM representation of the XML file.
-            dom = domBuilder.parse(file);
-
-        } catch(ParserConfigurationException pce) {
-            pce.printStackTrace();
-        } catch(SAXException se) {
-            se.printStackTrace();
-        } catch(IOException ioe) {
-            ioe.printStackTrace();
-        }
+        // [4] - Parse to get the DOM representation of the XML file.
+        dom = domBuilder.parse(file);
     }
 
+
+    public Element getRootElement() {
+        Element rootElement = null;
+
+        if (dom != null) {
+            rootElement = dom.getDocumentElement();
+        }
+
+        return rootElement;
+    }
 
     public String getRootElementName() {
         String rootElementName = null;
 
-        if (dom != null) {
-            rootElementName = dom.getDocumentElement().getTagName();
+        Element rootElement = getRootElement();
+        if (rootElement != null) {
+            rootElementName = rootElement.getTagName();
         }
 
         return rootElementName;
