@@ -1,11 +1,12 @@
 /**
  * Created by:  Tobias Mielke
  * Created on:  27.10.2015
- * Modified on: 27.10.2015
+ * Modified on: 07.12.2015
  */
 
 package de.kayteem.lib.xmltools;
 
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -14,13 +15,16 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class DOMXml implements XmlDocument {
+public class DOMXml implements XmlReader, XmlWriter {
 
     // FIELDS
     private Document dom;
@@ -32,7 +36,7 @@ public class DOMXml implements XmlDocument {
     }
 
 
-    // IMPLEMENTATION (XmlDocument)
+    // IMPLEMENTATION - READ (XmlReader)
     public void parse(File file) throws ParserConfigurationException, IOException, SAXException {
 
         // [1] - If file does not exist -> throw exception.
@@ -43,11 +47,11 @@ public class DOMXml implements XmlDocument {
         // [2] - Create a DOM builder factory.
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
-        // [3] - Create a DOM builder.
-        DocumentBuilder domBuilder = factory.newDocumentBuilder();
+        // [3] - Create a document builder.
+        DocumentBuilder docBuilder = factory.newDocumentBuilder();
 
-        // [4] - Parse to get the DOM representation of the XML file.
-        dom = domBuilder.parse(file);
+        // [4] - Parse XML file to get the DOM representation.
+        dom = docBuilder.parse(file);
     }
 
 
@@ -144,6 +148,77 @@ public class DOMXml implements XmlDocument {
 
     public String getContent(Element element) {
         return element.getChildNodes().item(0).getNodeValue();
+    }
+
+
+    // IMPLEMENTATION - WRITE (XmlWriter)
+    public void create() throws ParserConfigurationException {
+
+        // [1] - Create a DOM builder factory.
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+
+        // [2] - Create a document builder.
+        DocumentBuilder docBuilder = factory.newDocumentBuilder();
+
+        // [3] - Create new DOM.
+        dom = docBuilder.newDocument();
+    }
+
+
+    public Element addRootElement(String tagName) {
+        Element root = dom.createElement(tagName);
+        dom.appendChild(root);
+
+        return root;
+    }
+
+    public Element addElement(String tagName, Element parent) {
+        Element element = dom.createElement(tagName);
+        parent.appendChild(element);
+
+        return element;
+    }
+
+    public Element addElement(String tagName, String content, Element parent) {
+        Element element = dom.createElement(tagName);
+        element.appendChild(dom.createTextNode(content));
+        parent.appendChild(element);
+
+        return element;
+    }
+
+    public Attr addAttribute(String name, String value, Element parent) {
+        Attr attr = dom.createAttribute(name);
+        attr.setValue(value);
+        parent.setAttributeNode(attr);
+
+        return attr;
+    }
+
+
+    public void saveToXML(File file, boolean prettyPrint) throws TransformerException {
+
+        // [1] - Build transformer.
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+
+        // [2] - Pretty Print.
+        if (prettyPrint) {
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        }
+
+        // [3] - Build DOM source.
+        DOMSource source = new DOMSource(dom);
+
+        // [4] - Create Write to file.
+        StreamResult target = new StreamResult(file);
+
+        // [5] - Create Write to file.
+        transformer.transform(source, target);
+    }
+
+    public void saveToXML(File file) throws TransformerException {
+        saveToXML(file, true);
     }
 
 }
