@@ -1,7 +1,7 @@
 /**
  * Created by:  Tobias Mielke
  * Created on:  27.10.2015
- * Modified on: 07.12.2015
+ * Modified on: 22.08.2016
  */
 
 package de.kayteem.lib.xmltools;
@@ -172,6 +172,13 @@ public class DOMXml implements XmlReader, XmlWriter {
         return root;
     }
 
+    public Element addRootElement(String namespace, String tagName) {
+        Element root = (namespace == null) ? dom.createElement(tagName) : dom.createElementNS(namespace, tagName);
+        dom.appendChild(root);
+
+        return root;
+    }
+
     public Element addElement(String tagName, Element parent) {
         Element element = dom.createElement(tagName);
         parent.appendChild(element);
@@ -196,15 +203,16 @@ public class DOMXml implements XmlReader, XmlWriter {
     }
 
 
-    public void saveToXML(File file, boolean prettyPrint) throws TransformerException {
+    public void saveToXML(File file, int indent) throws TransformerException {
 
         // [1] - Build transformer.
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
         Transformer transformer = transformerFactory.newTransformer();
 
         // [2] - Pretty Print.
-        if (prettyPrint) {
+        if (indent > 0) {
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", String.valueOf(indent));
         }
 
         // [3] - Build DOM source.
@@ -218,7 +226,7 @@ public class DOMXml implements XmlReader, XmlWriter {
     }
 
     public void saveToXML(File file) throws TransformerException {
-        saveToXML(file, true);
+        saveToXML(file, 0);
     }
 
 }
