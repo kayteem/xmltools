@@ -1,15 +1,6 @@
-/**
- * Created by:  Tobias Mielke
- * Created on:  27.10.2015
- * Modified on: 22.08.2016
- */
-
 package de.kayteem.lib.xmltools;
 
-import org.w3c.dom.Attr;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -20,10 +11,16 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 
+/**
+ * Created by:  Tobias Mielke
+ * Created on:  27.10.2015
+ * Modified on: 04.12.2017
+ */
 public class DOMXml implements XmlReader, XmlWriter {
 
     // FIELDS
@@ -202,6 +199,59 @@ public class DOMXml implements XmlReader, XmlWriter {
         return attr;
     }
 
+    public Comment insertCommentLineBefore(String strComment, Element element) {
+        if (strComment == null) {
+            strComment = "";
+        }
+
+        Comment comment = dom.createComment(" " + strComment + " ");
+
+        element.getParentNode().insertBefore(comment, element);
+
+        return comment;
+    }
+
+    public Comment insertCommentLineAfter(String strComment, Element element) {
+        if (strComment == null) {
+            strComment = "";
+        }
+
+        Comment comment = dom.createComment(" " + strComment + " ");
+
+        element.getParentNode().appendChild(comment);
+
+        return comment;
+    }
+
+    public void commentOut(Element element) throws TransformerException {
+
+        // [1] - Build transformer.
+        StringWriter writer = new StringWriter();
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+
+        // [2] - Pretty Print.
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty(OutputKeys.STANDALONE, "yes");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", String.valueOf(4));
+
+        // [3] - Build DOM source.
+        DOMSource source = new DOMSource(element);
+
+        // [4] - Create Write to file.
+        StreamResult target = new StreamResult(writer);
+
+        // [5] - Create string.
+        transformer.transform(source, target);
+        String strComment = writer.toString();
+        strComment = strComment.substring(strComment.indexOf("?>") + 2);
+
+        // [6] - Insert comment before element
+        element.getParentNode().insertBefore(dom.createComment(strComment), element);
+
+        // [7] - Remove element
+        element.getParentNode().removeChild(element);
+    }
 
     public void saveToXML(File file, int indent) throws TransformerException {
 
