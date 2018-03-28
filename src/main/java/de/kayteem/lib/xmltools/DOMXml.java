@@ -9,6 +9,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -19,17 +20,20 @@ import java.util.List;
 /**
  * Created by:  Tobias Mielke
  * Created on:  27.10.2015
- * Modified on: 04.12.2017
+ * Modified on: 28.03.2018
  */
 public class DOMXml implements XmlReader, XmlWriter {
 
     // FIELDS
     private Document dom;
+    private XPath xPath;
 
 
     // CONSTRUCTION
     public DOMXml() {
         this.dom = null;
+
+        this.xPath = XPathFactory.newInstance().newXPath();
     }
 
 
@@ -51,6 +55,10 @@ public class DOMXml implements XmlReader, XmlWriter {
         dom = docBuilder.parse(file);
     }
 
+    public NodeList xpath(String expression) throws XPathExpressionException {
+        XPathExpression xPathExpression = xPath.compile(expression);
+        return (NodeList) xPathExpression.evaluate(dom, XPathConstants.NODESET);
+    }
 
     public Element getRootElement() {
         Element rootElement = null;
@@ -75,7 +83,7 @@ public class DOMXml implements XmlReader, XmlWriter {
 
 
     public List<Element> getElementsByName(String name, Element parent) {
-        List<Element> elements = new ArrayList<Element>();
+        List<Element> elements = new ArrayList<>();
 
         try {
             NodeList nodes = parent.getElementsByTagName(name);
