@@ -7,7 +7,6 @@
 package de.kayteem.lib.xmltools;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -20,7 +19,7 @@ import java.util.List;
 public interface XmlReader {
 
     void parse(File file) throws ParserConfigurationException, IOException, SAXException;
-    NodeList xpath(String expression) throws XPathExpressionException;
+    List<Element> xpath(String expression) throws XPathExpressionException;
 
     Element getRootElement();
     String getRootElementName();

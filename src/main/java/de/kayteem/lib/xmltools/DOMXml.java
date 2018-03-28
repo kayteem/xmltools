@@ -55,9 +55,18 @@ public class DOMXml implements XmlReader, XmlWriter {
         dom = docBuilder.parse(file);
     }
 
-    public NodeList xpath(String expression) throws XPathExpressionException {
+    public List<Element> xpath(String expression) throws XPathExpressionException {
         XPathExpression xPathExpression = xPath.compile(expression);
-        return (NodeList) xPathExpression.evaluate(dom, XPathConstants.NODESET);
+        NodeList nodes = (NodeList) xPathExpression.evaluate(dom, XPathConstants.NODESET);
+
+        List<Element> elemList = new ArrayList<>();
+        if (nodes != null && nodes.getLength() > 0) {
+            for (int i=0; i<nodes.getLength(); i++) {
+                elemList.add((Element) nodes.item(i));
+            }
+        }
+
+        return elemList;
     }
 
     public Element getRootElement() {
