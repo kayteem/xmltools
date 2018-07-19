@@ -161,7 +161,9 @@ public class DOMXml implements XmlReader, XmlWriter {
     }
 
     public String getContent(Element element) {
-        return element.getChildNodes().item(0).getNodeValue();
+        NodeList childNodes = element.getChildNodes();
+
+        return (childNodes == null || childNodes.getLength() == 0) ? null : childNodes.item(0).getNodeValue();
     }
 
 
