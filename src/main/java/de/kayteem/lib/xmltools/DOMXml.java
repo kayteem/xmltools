@@ -13,20 +13,21 @@ import javax.xml.xpath.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
 
 /**
- * Created by:  Tobias Mielke
- * Created on:  27.10.2015
- * Modified on: 28.03.2018
+ * Created by Tobias Mielke
+ * Created on 27.10.2015
+ * Changed on 06.09.2020
  */
 public class DOMXml implements XmlReader, XmlWriter {
 
     // FIELDS
     private Document dom;
-    private XPath xPath;
+    private final XPath xPath;
 
 
     // CONSTRUCTION
@@ -38,6 +39,10 @@ public class DOMXml implements XmlReader, XmlWriter {
 
 
     // IMPLEMENTATION - READ (XmlReader)
+    public void parse(Path path) throws ParserConfigurationException, IOException, SAXException {
+        parse(path.toFile());
+    }
+
     public void parse(File file) throws ParserConfigurationException, IOException, SAXException {
 
         // [1] - If file does not exist -> throw exception.
@@ -54,6 +59,7 @@ public class DOMXml implements XmlReader, XmlWriter {
         // [4] - Parse XML file to get the DOM representation.
         dom = docBuilder.parse(file);
     }
+
 
     public List<Element> xpath(String expression) throws XPathExpressionException {
         XPathExpression xPathExpression = xPath.compile(expression);
@@ -272,6 +278,11 @@ public class DOMXml implements XmlReader, XmlWriter {
         element.getParentNode().removeChild(element);
     }
 
+
+    public void saveToXML(File file) throws TransformerException {
+        saveToXML(file, 0);
+    }
+
     public void saveToXML(File file, int indent) throws TransformerException {
 
         // [1] - Build transformer.
@@ -294,8 +305,13 @@ public class DOMXml implements XmlReader, XmlWriter {
         transformer.transform(source, target);
     }
 
-    public void saveToXML(File file) throws TransformerException {
-        saveToXML(file, 0);
+
+    public void saveToXML(Path path) throws TransformerException {
+        saveToXML(path.toFile());
+    }
+
+    public void saveToXML(Path path, int indent) throws TransformerException {
+        saveToXML(path.toFile(), indent);
     }
 
 }

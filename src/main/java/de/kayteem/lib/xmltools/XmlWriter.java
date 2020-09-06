@@ -1,9 +1,3 @@
-/**
- * Created by:  Tobias Mielke
- * Created on:  07.12.2015
- * Modified on: 22.08.2016
- */
-
 package de.kayteem.lib.xmltools;
 
 import org.w3c.dom.Attr;
@@ -14,8 +8,14 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.io.File;
+import java.nio.file.Path;
 
 
+/**
+ * Created by Tobias Mielke
+ * Created on 07.12.2015
+ * Changed on 06.09.2020
+ */
 public interface XmlWriter {
 
     void create() throws ParserConfigurationException;
@@ -31,5 +31,8 @@ public interface XmlWriter {
 
     void saveToXML(File file) throws ParserConfigurationException, TransformerException;
     void saveToXML(File file, int indent) throws ParserConfigurationException, TransformerException;
+
+    void saveToXML(Path path) throws ParserConfigurationException, TransformerException;
+    void saveToXML(Path path, int indent) throws ParserConfigurationException, TransformerException;
 
 }
